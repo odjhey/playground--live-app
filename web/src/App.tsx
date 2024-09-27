@@ -9,11 +9,22 @@ const socket = io("/", {
   autoConnect: false,
 });
 
+// @todo should be common between server and client
+// @todo see if can use Zod
+type MessageTypes = {
+  bid: {
+    by: string;
+    amount: number;
+    from: string;
+  };
+};
+
 function App() {
   const [count, setCount] = useState(0);
   const [connectStatus, setConnectStatus] = useState(socket.connected);
   const [fromServer, setFromServer] = useState("");
   const [name, setName] = useState("");
+  const [bidResult, setBidResult] = useState();
 
   socket.on("connect", () => {
     setConnectStatus(true);
@@ -25,15 +36,34 @@ function App() {
     setConnectStatus(false);
   });
   socket.on("wspong", (msg) => {
-    console.log(msg);
+    setBidResult(msg);
   });
   socket.on("server_message", (args) => {
-    setFromServer(args);
+    console.log("server_message", args);
+    setFromServer(JSON.stringify(args));
   });
+
+  const bid = (args: MessageTypes["bid"]) => {
+    socket.emit("wsping", JSON.stringify(args));
+  };
+  const getReference = () => {
+    console.log("from server", fromServer);
+    if (fromServer) {
+      return JSON.parse(fromServer).reference;
+    }
+  };
+
+  const getCurrentBid = () => {
+    if (fromServer) {
+      const v = JSON.parse(fromServer);
+      return `${v.amount} - ${v.by}`;
+    }
+    return "";
+  };
 
   return (
     <>
-      <h1>React</h1>
+      <h1>Bid: {getCurrentBid()}</h1>
       <div className="card">
         name <input onChange={(e) => setName(e.target.value)}></input>
         <br />
@@ -46,11 +76,17 @@ function App() {
       <button
         onClick={() => {
           socket.connect();
-          socket.emit("wsping", `${name} ${count}`);
+          bid({
+            by: name,
+            amount: count,
+            from: getReference(),
+          });
         }}
       >
         Click
       </button>
+      <br />
+      <p>{bidResult}</p>
     </>
   );
 }
