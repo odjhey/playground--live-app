@@ -13,6 +13,7 @@ function App() {
   const [count, setCount] = useState(0);
   const [connectStatus, setConnectStatus] = useState(socket.connected);
   const [fromServer, setFromServer] = useState("");
+  const [name, setName] = useState("");
 
   socket.on("connect", () => {
     setConnectStatus(true);
@@ -34,8 +35,10 @@ function App() {
     <>
       <h1>React</h1>
       <div className="card">
+        name <input onChange={(e) => setName(e.target.value)}></input>
+        <br />
         <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+          bid is {count}
         </button>
         <p>server message: {fromServer}</p>
       </div>
@@ -43,7 +46,7 @@ function App() {
       <button
         onClick={() => {
           socket.connect();
-          socket.emit("wsping", `yoow ${count}`);
+          socket.emit("wsping", `${name} ${count}`);
         }}
       >
         Click

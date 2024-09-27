@@ -30,7 +30,10 @@ server.ready((err) => {
     // Handle incoming 'ping' event and reply with 'wspong'
     socket.on("wsping", (args) => {
       console.log("Received ping", args);
+      lastMessage = `bid ${args}`;
       socket.emit("wspong", "lasdjf"); // Emit 'wspong' event back to client
+
+      server.io.emit("server_message", lastMessage);
     });
 
     // Handle disconnect event
