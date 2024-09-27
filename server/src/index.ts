@@ -100,7 +100,7 @@ server.ready((err) => {
   });
 });
 
-server.listen({ port: 8080 }, (err, address) => {
+server.listen({ host: "0.0.0.0", port: 8080 }, (err, address) => {
   if (err) {
     console.error(err);
     process.exit(1);
